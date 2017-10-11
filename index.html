@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>VueBook</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		html, body {
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+	<link rel="stylesheet" type="text/css" href="./lib/element/index.css">
+</head>
+<body>
+	<div id="app">
+    <el-menu theme="dark" :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" :router="true">
+		  <el-menu-item index="/">首页</el-menu-item>
+		  <el-menu-item index="/link">链接</el-menu-item>
+		</el-menu>
+		<router-view></router-view>
+  </div>
+</body>
+	<script src="./lib/vue/vue.js"></script>
+	<script src="./lib/vue/vue-router.js"></script>
+	<script src="./lib/element/index.js"></script>
+	<script src="./js/components.js"></script>
+	<script>
+    const router = new VueRouter({
+    	routes: [{
+    		path: '/',
+    		component: bookList
+    	}, {
+    		path: '/book',
+    		component: { template: '<div></div>' }
+    	}, {
+    		path: '/link',
+    		component: { template: '<div>Link page</div>' }
+    	}]
+    })
+		const app = new Vue({
+      el: '#app',
+      router,
+      data () {
+        return {
+	        activeIndex: '/',
+	        
+        }
+      },
+	    methods: {
+	      handleSelect(key, keyPath) {
+	        console.log(key, keyPath);
+	      }
+	    }
+    })
+	</script>
+</html>
