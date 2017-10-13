@@ -12,11 +12,13 @@ const cmpBookList = {
       row: {},
       fullscreenLoading: false,
       dialogVisible: false,
-      loadingText: ''
+      loadingText: '',
+      action: ''
     }
   },
   methods: {
     handleEdit(index, row) {
+      this.action = '保存修改'
       this.dialogFormVisible = true
       this.form.name = row.name
       this.form.category = row.category
@@ -29,7 +31,8 @@ const cmpBookList = {
     handleRead(index, row) {
       this.$router.push({ path: '/books', query: { id: row.rowid } })
     },
-    edit() {
+    editBook() {
+      if (this.verify()) return
       this.loadingText = '正在保存'
       this.fullscreenLoading = true
       const param = { name: this.form.name, category: this.form.category }
@@ -52,7 +55,7 @@ const cmpBookList = {
         }
       )
     },
-    del() {
+    deleteBook() {
       this.loadingText = '删除中'
       this.fullscreenLoading = true
       this.dialogVisible = false
@@ -77,6 +80,61 @@ const cmpBookList = {
       )
       // this.dialogVisible = false
     },
+    handleAdd() {
+      this.action = '确定新增'
+      this.dialogFormVisible = true
+      this.form.name = ''
+      this.form.category = ''
+    },
+    save() {
+      this.action === '保存修改' ? this.editBook() : this.addBook()
+    },
+    addBook() {
+      if (this.verify()) return
+      this.loadingText = '正在保存'
+      this.fullscreenLoading = true
+      const param = { name: this.form.name, category: this.form.category }
+      this.$http.post('/api/books', param).then(
+        resp => {
+          //故意延迟，加载loading动画更生动
+          setTimeout(() => {
+            this.fullscreenLoading = false
+            this.dialogFormVisible = false
+            this.tableData.push({
+              name: this.form.name,
+              category: this.form.category
+            })
+            this.$message({
+              message: '新增成功',
+              type: 'success'
+            });
+          }, 1200)
+        },
+        resp => {
+          this.fullscreenLoading = false
+        }
+      )
+    },
+    verify() {
+      this.form.name = this.form.name.trim()
+      this.form.category = this.form.category.trim()
+      if (this.form.name === '') {
+
+        this.$message({
+          message: '书名不能为空',
+          type: 'error'
+        });
+        return true
+      }
+      if (this.form.category === '') {
+        this.form.category === '' && this.$message({
+          message: '分类不能为空',
+          type: 'error'
+        });
+        return true
+      }
+      return false
+    }
   },
   created () {
     this.$http.get('/api/books').then(
@@ -90,6 +148,7 @@ const cmpBookList = {
   },
   template: 
     `<div>
+      <el-button type="text" class="add-book" @click="handleAdd()">新增</el-button>
       <el-table
         :data="tableData"
         border
@@ -119,13 +178,13 @@ const cmpBookList = {
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog title="修改书信息" :visible.sync="dialogFormVisible">
+      <el-dialog title="书本信息" :visible.sync="dialogFormVisible">
         <el-form :model="form">
           <el-form-item label="书名" :label-width="formLabelWidth">
             <el-input v-model="form.name" auto-complete="off" cls="book-list-name"></el-input>
           </el-form-item>
           <el-form-item label="分类" :label-width="formLabelWidth">
-            <el-select v-model="form.category" placeholder="请选择活动区域" cls="book-list-name">
+            <el-select v-model="form.category" placeholder="请选择分类" cls="book-list-name">
               <el-option label="文学" value="文学"></el-option>
               <el-option label="古代文学" value="古代文学"></el-option>
               <el-option label="自然科学" value="自然科学"></el-option>
@@ -136,9 +195,9 @@ const cmpBookList = {
           <el-button @click="dialogFormVisible = false">取 消</el-button>
           <el-button 
             type="primary" 
-            @click="edit()" 
+            @click="save()" 
             v-loading.fullscreen.lock="fullscreenLoading"
-            :element-loading-text="loadingText">确 定</el-button>
+            :element-loading-text="loadingText">{{ action }}</el-button>
         </div>
       </el-dialog>
       <el-dialog
@@ -148,7 +207,7 @@ const cmpBookList = {
         <span>确定删除？</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="del()">确 定</el-button>
+          <el-button type="primary" @click="deleteBook()">确 定</el-button>
         </span>
       </el-dialog>
     </div>`
