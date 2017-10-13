@@ -5,15 +5,6 @@ const cmpBook = {
     }
   },
   methods: {
-    handleEdit(index, row) {
-      console.log(index, row)
-    },
-    handleDelete(index, row) {
-      console.log(index, row)
-    },
-    handleRead(index, row) {
-      console.log(index, row)
-    },
     back() {
       this.$router.back()
     }
@@ -35,19 +26,9 @@ const cmpBook = {
           label="作者"
           width="180">
         </el-table-column>
-        <el-table-column label="操作">
-          <template scope="scope">
-            <el-button
-              size="small"
-              @click="handleRead(scope.$index, scope.row)">查看</el-button>
-            <el-button
-              size="small"
-              @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button
-              size="small"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-          </template>
+        <el-table-column
+          prop="content"
+          label="内容">
         </el-table-column>
       </el-table>
     </div>`,
