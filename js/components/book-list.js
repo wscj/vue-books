@@ -10,23 +10,27 @@ const cmpBookList = {
       },
       formLabelWidth: '120px',
       row: {},
-      fullscreenLoading: false
+      fullscreenLoading: false,
+      dialogVisible: false,
+      loadingText: ''
     }
   },
   methods: {
     handleEdit(index, row) {
+      this.dialogFormVisible = true
       this.form.name = row.name
       this.form.category = row.category
       this.row = row
-      this.dialogFormVisible = true
     },
     handleDelete(index, row) {
-      console.log(index, row)
+      this.dialogVisible = true
+      this.row = row
     },
     handleRead(index, row) {
       this.$router.push({ path: '/books', query: { id: row.rowid } })
     },
     edit() {
+      this.loadingText = '正在保存'
       this.fullscreenLoading = true
       const param = { name: this.form.name, category: this.form.category }
       this.$http.patch('/api/books/' + this.row.rowid, param).then(
@@ -37,13 +41,42 @@ const cmpBookList = {
             this.dialogFormVisible = false
             this.row.name = this.form.name
             this.row.category = this.form.category
+            this.$message({
+              message: '修改成功',
+              type: 'success'
+            });
           }, 1200)
         },
         resp => {
           this.fullscreenLoading = false
         }
       )
-    }
+    },
+    del() {
+      this.loadingText = '删除中'
+      this.fullscreenLoading = true
+      this.dialogVisible = false
+      this.$http.delete('/api/books/' + this.row.rowid).then(
+        resp => {
+          //故意延迟，加载loading动画更生动
+          setTimeout(() => {
+            this.fullscreenLoading = false
+            this.tableData
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i].rowid === this.row.rowid) {
+                this.tableData.splice(i, 1)
+                break
+              }
+            }
+            this.$message({
+              message: '删除成功',
+              type: 'success'
+            });
+          }, 1200)
+        }
+      )
+      // this.dialogVisible = false
+    },
   },
   created () {
     this.$http.get('/api/books').then(
@@ -105,8 +138,18 @@ const cmpBookList = {
             type="primary" 
             @click="edit()" 
             v-loading.fullscreen.lock="fullscreenLoading"
-            element-loading-text="正在保存">确 定</el-button>
+            :element-loading-text="loadingText">确 定</el-button>
         </div>
+      </el-dialog>
+      <el-dialog
+        title="提示"
+        :visible.sync="dialogVisible"
+        size="tiny">
+        <span>确定删除？</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="del()">确 定</el-button>
+        </span>
       </el-dialog>
     </div>`
 }

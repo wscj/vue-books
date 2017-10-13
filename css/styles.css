@@ -6,6 +6,7 @@ html, body {
 .el-input[cls=book-list-name] {
 	width: 300px;
 }
+.add-book,
 .back-to-book-list {
 	margin: 0 12px;
 }
