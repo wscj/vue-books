@@ -1,0 +1,11 @@
+html, body {
+	margin: 0;
+	padding: 0;
+}
+.el-select[cls=book-list-name],
+.el-input[cls=book-list-name] {
+	width: 300px;
+}
+.back-to-book-list {
+	margin: 0 12px;
+}

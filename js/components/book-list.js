@@ -5,19 +5,19 @@ const cmpBookList = {
       dialogFormVisible: false,
       form: {
         name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
+        category: '',
+        rowid: 0
       },
-      formLabelWidth: '120px'
+      formLabelWidth: '120px',
+      row: {},
+      fullscreenLoading: false
     }
   },
   methods: {
     handleEdit(index, row) {
+      this.form.name = row.name
+      this.form.category = row.category
+      this.row = row
       this.dialogFormVisible = true
     },
     handleDelete(index, row) {
@@ -25,6 +25,24 @@ const cmpBookList = {
     },
     handleRead(index, row) {
       this.$router.push({ path: '/books', query: { id: row.rowid } })
+    },
+    edit() {
+      this.fullscreenLoading = true
+      const param = { name: this.form.name, category: this.form.category }
+      this.$http.patch('/api/books/' + this.row.rowid, param).then(
+        resp => {
+          //故意延迟，加载loading动画更生动
+          setTimeout(() => {
+            this.fullscreenLoading = false
+            this.dialogFormVisible = false
+            this.row.name = this.form.name
+            this.row.category = this.form.category
+          }, 1200)
+        },
+        resp => {
+          this.fullscreenLoading = false
+        }
+      )
     }
   },
   created () {
@@ -74,16 +92,20 @@ const cmpBookList = {
             <el-input v-model="form.name" auto-complete="off" cls="book-list-name"></el-input>
           </el-form-item>
           <el-form-item label="分类" :label-width="formLabelWidth">
-            <el-select v-model="form.region" placeholder="请选择活动区域" cls="book-list-name">
-              <el-option label="文学" value="wenxue"></el-option>
-              <el-option label="古代文学" value="gudaiwenxue"></el-option>
-              <el-option label="自然科学" value="zirankexue"></el-option>
+            <el-select v-model="form.category" placeholder="请选择活动区域" cls="book-list-name">
+              <el-option label="文学" value="文学"></el-option>
+              <el-option label="古代文学" value="古代文学"></el-option>
+              <el-option label="自然科学" value="自然科学"></el-option>
             </el-select>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+          <el-button 
+            type="primary" 
+            @click="edit()" 
+            v-loading.fullscreen.lock="fullscreenLoading"
+            element-loading-text="正在保存">确 定</el-button>
         </div>
       </el-dialog>
     </div>`
