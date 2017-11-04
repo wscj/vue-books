@@ -18,6 +18,7 @@ $ git clone https://github.com/wscj/vue-books.git
 $ git clone https://github.com/wscj/restapi.git vue-books/restapi
 
 # 安装后台依赖
+$ cd vue-books/restapi
 $ npm i
 
 # 运行后台，手动在浏览器打开`http://localhost:3000/#/`
